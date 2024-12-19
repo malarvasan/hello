@@ -11,7 +11,7 @@ on:
 env:
     DOCKER_USER_ID: ${{secrets.DOCKER_USER_ID}}
     DOCKER_SECRET_KEY: ${{secrets.DOCKER_SECRET_KEY}}
-    GITHUB_TOKEN: ${{GITHUB_TOKEN}}
+    GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
     IMAGE_NAME: hello-springboot
 
 jobs:
