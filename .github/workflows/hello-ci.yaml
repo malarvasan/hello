@@ -11,6 +11,7 @@ on:
 env:
     DOCKER_USER_ID: ${{secrets.DOCKER_USER_ID}}
     DOCKER_SECRET_KEY: ${{secrets.DOCKER_SECRET_KEY}}
+    GITHUB_TOKEN: ${{GITHUB_TOKEN}}
     IMAGE_NAME: hello-springboot
 
 jobs:
@@ -18,41 +19,41 @@ jobs:
         runs-on: ubuntu-latest
         
         steps:
-            - name: Checkout Code
-              uses: actions/checkout@v4
+          - name: Checkout Code
+            uses: actions/checkout@v4
 
-            - name: Setup Java
-              uses: actions/setup-java@v4
-              with:
-                distribution: 'temurin'
-                java-version: '17'
-                cache: 'maven'
+          - name: Setup Java
+            uses: actions/setup-java@v4
+            with:
+              distribution: 'temurin'
+              java-version: '17'
+              cache: 'maven'
 
-            - name: Build Image using Maven
-              run: ./mvnw clean install
+          - name: Build Image using Maven
+            run: ./mvnw clean install
 
-            - name: Set up Docker Buildx
-              uses: docker/setup-buildx-action@v1              
+          - name: Set up Docker Buildx
+            uses: docker/setup-buildx-action@v1              
 
-            - name: Login to Docker Hub
-              uses: docker/login-action@v3
-              with:
-                username: ${{env.DOCKER_USER_ID}}
-                password: ${{env.DOCKER_SECRET_KEY}}
+          - name: Login to Docker Hub
+            uses: docker/login-action@v3
+            with:
+              username: ${{env.DOCKER_USER_ID}}
+              password: ${{env.DOCKER_SECRET_KEY}}
 
-            # - name: Build Docker Image
-            #   run: docker build -t ${{env.DOCKER_USER_ID}}/${{env.IMAGE_NAME}}:${{github.run_id}} .
+          # - name: Build Docker Image
+          #   run: docker build -t ${{env.DOCKER_USER_ID}}/${{env.IMAGE_NAME}}:${{github.run_id}} .
 
-            # - name: Push Image to Docker Hub
-            #   run: docker push ${{env.DOCKER_USER_ID}}/${{env.IMAGE_NAME}}:$BUILD_NUMBER
+          # - name: Push Image to Docker Hub
+          #   run: docker push ${{env.DOCKER_USER_ID}}/${{env.IMAGE_NAME}}:$BUILD_NUMBER
 
-            - name: Build and Push to Docker Hub
-              uses: docker/build-push-action@v6
-              with:
-                context: .
-                file: ./Dockerfile
-                push: true
-                tags: ${{env.DOCKER_USER_ID}}/${{env.IMAGE_NAME}}:${{github.run_id}}
+          - name: Build and Push to Docker Hub
+            uses: docker/build-push-action@v6
+            with:
+              context: .
+              file: ./Dockerfile
+              push: true
+              tags: ${{env.DOCKER_USER_ID}}/${{env.IMAGE_NAME}}:${{github.run_id}}
     
     update-tag:
         runs-on: ubuntu-latest
@@ -60,17 +61,22 @@ jobs:
         needs: build-push
         
         steps:
-            - name: Update Helm Values.yaml file
-              run: |
-                sed -i 's/tag: .*/tag: "${{github.run_id}}"/' hellochart/values.yaml
+          - name: Checkout Code
+            uses: actions/checkout@v4
+            with:
+              token: ${{env.GITHUB_TOKEN}}
+
+          - name: Update Helm Values.yaml file
+            run: |
+              sed -i 's/tag: .*/tag: "${{github.run_id}}"/' hellochart/values.yaml
             
-            - name: Commit and Push changes
-              run: |
-                git config --global user.email "malarvasan@yahoo.com"
-                git config --global user.name "Malarvasan Somasundaram"
-                git add hellochart/values.yaml
-                git commit -m "Updated Image tag"
-                git push
+          - name: Commit and Push changes
+            run: |
+              git config --global user.email "malarvasan@yahoo.com"
+              git config --global user.name "Malarvasan Somasundaram"
+              git add hellochart/values.yaml
+              git commit -m "Updated Image tag"
+              git push
 
 
 
