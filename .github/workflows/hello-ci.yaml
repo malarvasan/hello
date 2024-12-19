@@ -19,16 +19,16 @@ jobs:
         
         steps:
             - name: Checkout Code
-            - uses: actions/checkout@v4
+              uses: actions/checkout@v4
 
             - name: Login to Docker Hub
-            - uses: docker/login-action@v1
+              uses: docker/login-action@v1
               with:
                 username: ${{env.DOCKER_USER_ID}}
                 password: ${{env.DOCKER_SECRET_KEY}}
 
             - name: Build Docker Image
-            - run: docker build -t ${{env.DOCKER_USER_ID}}/${{env.IMAGE_NAME}}:$BUILD_NUMBER .
+              run: docker build -t ${{env.DOCKER_USER_ID}}/${{env.IMAGE_NAME}}:$BUILD_NUMBER .
 
             - name: Push Image to Docker Hub
               run: docker push ${{env.DOCKER_USER_ID}}/${{env.IMAGE_NAME}}:$BUILD_NUMBER
