@@ -30,11 +30,19 @@ jobs:
                 username: ${{env.DOCKER_USER_ID}}
                 password: ${{env.DOCKER_SECRET_KEY}}
 
-            - name: Build Docker Image
-              run: docker build -t ${{env.DOCKER_USER_ID}}/${{env.IMAGE_NAME}}:${{github.run_id}} .
+            # - name: Build Docker Image
+            #   run: docker build -t ${{env.DOCKER_USER_ID}}/${{env.IMAGE_NAME}}:${{github.run_id}} .
 
-            - name: Push Image to Docker Hub
-              run: docker push ${{env.DOCKER_USER_ID}}/${{env.IMAGE_NAME}}:$BUILD_NUMBER
+            # - name: Push Image to Docker Hub
+            #   run: docker push ${{env.DOCKER_USER_ID}}/${{env.IMAGE_NAME}}:$BUILD_NUMBER
+
+            - name: Build and Push to Docker Hub
+              uses: docker/build-push-action@v6
+              with:
+                context: .
+                file: ./Dockerfile
+                push: true
+                tags: ${{env.DOCKER_USER_ID}}/${{env.IMAGE_NAME}}:${{github.run_id}}
     
     update-tag:
         runs-on: ubuntu-latest
