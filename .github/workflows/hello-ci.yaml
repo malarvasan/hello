@@ -21,6 +21,16 @@ jobs:
             - name: Checkout Code
               uses: actions/checkout@v4
 
+            - name: Setup Java
+              uses: actions/setup-java@v4
+              with:
+                distribution: 'alpine'
+                java-version: '17'
+                cache: 'maven'
+
+            - name: Build Image using Maven
+              run: ./mvnw clean install
+
             - name: Set up Docker Buildx
               uses: docker/setup-buildx-action@v1              
 
